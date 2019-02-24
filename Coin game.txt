@@ -1,0 +1,20 @@
+n=int(input())
+
+a=[]
+for j in range(0,n):
+    counter=0
+    nop=int(input())
+    for i in range(0,nop):
+      x=int(input())
+      a.append(x)
+    for k in a:
+      if k%2==0:
+        while k%2==0:
+            counter+=1
+            k=k//2
+      else :
+        pass
+    if counter%2==0:
+      print("Alan")
+    else :
+      print("Charlie")

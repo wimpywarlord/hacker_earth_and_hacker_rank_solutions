@@ -1,0 +1,29 @@
+a=input()
+n,l,m=a.split()
+b=[]
+
+x=input()
+b=x.split()
+for i in range(0,int(n))
+    b[i]=int(b[i])
+
+flag=0
+count=0
+for i in range(0,int(n))
+    c=i
+    for j in range(0,int(m))
+       
+       if i + int(m)  int(n)
+           
+           if b[c]int(l)
+               flag=1
+           c+=1
+       else
+           pass
+    if flag==1
+           pass
+    else
+           count+=1
+
+
+print(count)

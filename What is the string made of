@@ -1,0 +1,24 @@
+s=input()
+ans=0
+for i in s:
+    if i=='1':
+        ans+=2
+    if i=='2':
+        ans+=5
+    if i=='3':
+        ans+=5
+    if i=='4':
+        ans+=4
+    if i=='5':
+        ans+=5
+    if i=='6':
+        ans+=6
+    if i=='7':
+        ans+=3
+    if i=='8':
+        ans+=7
+    if i=='9':
+        ans+=6
+    if i=='0':
+        ans+=6
+print(ans)

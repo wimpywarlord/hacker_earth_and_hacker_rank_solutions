@@ -1,0 +1,263 @@
+###################CHANGE THE SEQUENCE############
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+ 
+#define MAX(x,y) (x>y?x:y)
+#define MIN(x,y) (x<y?x:y)
+ 
+#define MAX_DEPTH 6 //best answer (1.1s)
+#define N 100000
+#define MV 32
+int n,q;
+int s[N];
+int ct[MAX_DEPTH][N][MV];
+ 
+void dsolve(int l,int r,int d){
+    if(d >= MAX_DEPTH) return;
+    int m = (l+r+1)/2;
+    int dp[MV];
+    int i,j,k;
+    for(i = 0;i < MV;i++){
+        memset(dp,0,sizeof(dp));
+        for(j = m;j <= r;j++){
+            if(i < s[j]){
+                dp[i] += s[j]-i;
+                for(k = i+1;k < s[j];k++){
+                    dp[k] = MIN(dp[k-1]-1,dp[k]+s[j]-k);
+                }
+                for(k = s[j]+1;k < MV;k++){
+                    dp[k] = MIN(dp[k-1],dp[k]+k-s[j]);
+                }
+            }
+            else{
+                dp[i] += i-s[j];
+                for(k = i+1;k < MV;k++){
+                    dp[k] = MIN(dp[k-1],dp[k]+k-s[j]);
+                }
+            }
+            ct[d][j][i] = dp[MV-1];
+        }
+    }
+    for(i = 0;i < MV;i++){
+        memset(dp,0,sizeof(dp));
+        for(j = m-1;j >= l;j--){
+            if(i > s[j]){
+                dp[i] += i-s[j];
+                for(k = i-1;k > s[j];k--){
+                    dp[k] = MIN(dp[k+1]-1,dp[k]+k-s[j]);
+                }
+                for(k = s[j]-1;k >= 0;k--){
+                    dp[k] = MIN(dp[k+1],dp[k]+s[j]-k);
+                }
+            }
+            else{
+                dp[i] += s[j]-i;
+                for(k = i-1;k >= 0;k--){
+                    dp[k] = MIN(dp[k+1],dp[k]+s[j]-k);
+                }
+            }
+            ct[d][j][i] = dp[0];
+        }
+    }
+    dsolve(l,m-1,d+1);
+    dsolve(m,r,d+1);
+}
+ 
+void init(){
+    int i,j;
+    dsolve(0,n-1,0);
+}
+ 
+int solve1(int l,int r){
+    int dp[MV];
+    int i,j,k;
+    memset(dp,0,sizeof(dp));
+    for(j = l;j <= r;j++){
+        dp[0] += s[j];
+        for(k = 1;k < s[j];k++){
+            dp[k] = MIN(dp[k-1]-1,dp[k]+s[j]-k);
+        }
+        for(k = s[j]+1;k < MV;k++){
+            dp[k] = MIN(dp[k-1],dp[k]+k-s[j]);
+        }
+    }
+    return dp[MV-1];
+}
+ 
+int dfs(int a,int b,int l,int r,int d){
+    if(d>=MAX_DEPTH) return solve1(a,b);
+    int m = (l+r+1)/2;
+    if(m <= a) return dfs(a,b,m,r,d+1);
+    if(b < m) return dfs(a,b,l,m-1,d+1);
+    int ans = ct[d][a][0]+ct[d][b][0];
+    int i;
+    for(i = 1;i < MV;i++){
+        ans = MIN(ans,ct[d][a][i]+ct[d][b][i]);
+    }
+    return ans;
+}
+ 
+int solve2(int l,int r){
+    return dfs(l,r,0,n-1,0);
+}
+ 
+int main(){
+    int i,j,a,b;
+    scanf("%d %d",&n,&q);
+    for(i = 0;i < n;i++) scanf("%d",&s[i]);
+    for(i = 0;i < n;i++) s[i]--;
+    if(n > 32) init();
+    int ans = 0;
+    for(i = 0;i < q;i++){
+        scanf("%d %d",&a,&b);
+        if(n > 32) ans = solve2((a+ans-1)%n,(b+ans-1)%n);
+        else ans = solve1((a+ans-1)%n,(b+ans-1)%n);
+        printf("%d\n",ans);
+    }
+}
+
+
+
+##################COUNT THE PERMUTATION ###################
+'''
+# Sample code to perform I/O:
+ 
+name = input()                  # Reading input from STDIN
+print('Hi, %s.' % name)         # Writing output to STDOUT
+ 
+# Warning: Printing unwanted or ill-formatted data to output will cause the test cases to fail
+'''
+ 
+# Write your code here
+class BIT:
+    def __init__(self, N):
+        self.N = N
+        self.b = [0] * (N+1)
+    
+    def update(self, x, v):
+        while x < self.N:
+            self.b[x] += v
+            x += x&-x
+    
+    def get(self, x):
+        ret = 0
+        while x > 0:
+            ret += self.b[x]
+            x -= x&-x
+        return ret
+ 
+def read_seq():
+    return list(map(int, input().strip().split()))
+    
+mod = 10 ** 9 + 7
+ 
+def inv(x):
+    return pow(x, mod-2, mod)
+ 
+def fac(x):
+    ret = 1
+    for i in range(1, x+1):
+        ret = ret * i % mod
+    return ret
+ 
+if __name__ == "__main__":
+    n = int(input().strip())
+    a = read_seq()
+    b = read_seq()
+    ans = 0
+    N = 2 * 10 ** 5
+    cnt = [0]  * (N + 1)
+    for x in a:
+        cnt[x] += 1
+    bit = BIT(N)
+    mul = fac(n)
+    for i in range(N+1):
+        if cnt[i] > 0:
+            bit.update(i, cnt[i])
+            mul = mul * inv(fac(cnt[i])) % mod
+    for i in range(n):
+        x = b[i]
+        mul = mul * inv(n-i) % mod
+        ans = (ans + mul * bit.get(x-1)) % mod
+        if cnt[x] == 0:
+            break
+        mul = mul * cnt[x] % mod
+        cnt[x] -= 1
+        bit.update(x, -1)
+    print(ans)
+
+
+
+
+###########SUBARRAYS#####################
+
+
+n=int(input())
+a=list(map(int,input().split()))
+if(max(a)<0):
+    print(0,0)
+else:
+    maxi=temp=count=0
+    ind=-10
+    for i in range(n):
+        temp+=a[i]
+        if(temp>maxi):
+            maxi=temp
+            ind=i
+            count=1
+        elif(temp==maxi and ind!=i-1):
+            count+=1
+        if(temp<0):
+            temp=0
+    print(maxi,count)
+
+
+
+
+
+########SHIFT THE LETTERS ###############
+
+
+s = input()
+k = int(input())
+n = len(s)
+inf = 10 ** 9 + 7
+dp = [[[inf for c in range(26)] for j in range(k+2)] for i in range(n+1)]
+s = [ord(c) - ord('a') for c in s]
+ 
+def cost(a, b):
+    d = b - a
+    if d < 0:
+        d += 26
+    return d
+ 
+for c in range(26):
+    dp[1][0][c] = cost(s[0], c)
+for i in range(1, n):
+    w = [cost(s[i], c) for c in range(26)]
+    for j in range(k+1):
+        best = inf
+        for c in range(26):
+            new_val = dp[i][j][c] + w[c]
+            if dp[i+1][j][c] > new_val:
+                dp[i+1][j][c] = new_val
+ 
+            new_val = best + w[c]
+            if dp[i+1][j+1][c] > new_val:
+                dp[i+1][j+1][c] = new_val
+            if dp[i][j][c] < best:
+                best = dp[i][j][c]
+        best = inf
+        for c in range(25, -1, -1):
+            new_val = best + w[c]
+            if dp[i+1][j+1][c] > new_val:
+                dp[i+1][j+1][c] = new_val
+            if dp[i][j][c] < best:
+                best = dp[i][j][c]
+ans = inf
+for j in range(k+1):
+    for c in range(26):
+        if dp[n][j][c] < ans:
+            ans = dp[n][j][c]
+print(ans)
