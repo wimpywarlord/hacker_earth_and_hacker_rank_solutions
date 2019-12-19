@@ -34,7 +34,7 @@ Build with love and some passion.
 
 ## Contributing
 
-Help us make the this repo better in any way possible.
+Help us make the this repo better by either adding more questions or improving the current ones.
 
 ## I'm a social animal!
 
